@@ -7,13 +7,10 @@ package com.Raktar.Api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,10 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Desmor
  */
-@Path("/test")
-public class TetsApi {
+@Path("/item")
+public class ItemController {
     
-    @Autowired
+      @Autowired
     private ItemRepository repo;
     @Autowired
     private ObjectMapper objectMapper;
@@ -43,15 +40,7 @@ public class TetsApi {
     }
             
     @GET
-    @Path("/help")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String gettext(){
-        repo.save(new Item("a","a","a",1,"a",LocalDateTime.now(),LocalDateTime.now(),true));
-        return "text";
-    }
-    
-    @GET
-    @Path("item/{id}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Item getItem(@PathParam("id") String id) throws JsonProcessingException {
         
@@ -60,20 +49,34 @@ public class TetsApi {
     }
     
     @GET
-    @Path("items")
+    @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public ArrayList<Item> getAllItem() throws JsonProcessingException {
         return repo.findAll();
-
     }
     
+    
+    //Save the Item if the item already in the db then updates it;
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addItem(Item item,@Context UriInfo uriInfo)
     {
-        repo.save(new Item(item.getItemID(),item.getName(),item.getOperatorName(),item.getQuantity(),item.getCategory()
-                ,item.getTimeModified(),item.getTimePlaced(),item.getNeedsReorder()));
+        repo.save(new Item(item.getItemID(),item.getCategory(),item.getName(),item.getQuantity(),item.getOperatorName()
+                ,item.getTimePlaced(),item.getTimeModified(),item.getNeedsReorder()));
         
-        return Response.status(Response.Status.CREATED.getStatusCode()).header("Created", item).build();
+        return Response.status(Response.Status.CREATED.getStatusCode()).header("Created", item.ItemID).build();
+    }
+    
+    @DELETE
+    @Path("/delete/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteItem(@PathParam("id") String id) throws JsonProcessingException {
+        Item item = repo.findById(id).orElse(null);
+        if(item == null)
+        {
+            return Response.status(Response.Status.NO_CONTENT.getStatusCode()).build();
+        }
+        repo.delete(item);
+        return Response.status(Response.Status.OK.getStatusCode()).header("Deleted", item.ItemID).build();
     }
 }

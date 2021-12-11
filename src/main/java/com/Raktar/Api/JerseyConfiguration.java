@@ -21,6 +21,6 @@ public class JerseyConfiguration extends ResourceConfig {
     //Init the register method for our controllers
     @PostConstruct
     public void init() {
-        register(TetsApi.class);
+        register(ItemController.class);
 }
 }
