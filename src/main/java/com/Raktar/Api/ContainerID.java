@@ -15,6 +15,22 @@ import java.util.Objects;
 
 public class ContainerID implements Serializable{
 
+    public String getShelf() {
+        return Shelf;
+    }
+
+    public void setShelf(String Shelf) {
+        this.Shelf = Shelf;
+    }
+
+    public String getBox() {
+        return Box;
+    }
+
+    public void setBox(String Box) {
+        this.Box = Box;
+    }
+
         
     String Shelf;
     String Box;

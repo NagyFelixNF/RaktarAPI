@@ -5,9 +5,15 @@
  */
 package com.Raktar.Api;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 /**
@@ -19,7 +25,32 @@ import javax.persistence.OneToOne;
 
 @Entity
 @IdClass(ContainerID.class)
-public class Container {
+public class Container implements Serializable {
+
+    public String getShelf() {
+        return Shelf;
+    }
+
+    public void setShelf(String Shelf) {
+        this.Shelf = Shelf;
+    }
+
+    public String getBox() {
+        return Box;
+    }
+
+    public void setBox(String Box) {
+        this.Box = Box;
+    }
+    //@JsonBackReference
+    @JsonIgnore
+    public Item getItem() {
+        return Item;
+    }
+
+    public void setItem(Item Item) {
+        this.Item = Item;
+    }
     
     //Composite key
     @Id
@@ -28,7 +59,10 @@ public class Container {
     String Box;
     
     //Foregin Key to Item
-    @OneToOne  
+    @ManyToOne()
+    @JoinColumn(name="ItemID")
+    //@JsonBackReference
+    @JsonIgnore
     private Item Item;
 
     public Container() {}

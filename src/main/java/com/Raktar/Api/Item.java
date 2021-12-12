@@ -5,9 +5,17 @@
  */
 package com.Raktar.Api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  * This is one of our entity class this has all the annotation to save to the database and also to serilazie it to JSON to send out with our API
@@ -15,7 +23,30 @@ import javax.persistence.Id;
  * @author Desmor
  */
 @Entity
-public class Item {
+public class Item implements Serializable {
+
+    public Item(String ItemID, String Category, String Name, Integer Quantity, String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, Boolean NeedsReorder, List<Container> Container) {
+        this.ItemID = ItemID;
+        this.Category = Category;
+        this.Name = Name;
+        this.Quantity = Quantity;
+        this.OperatorName = OperatorName;
+        this.TimePlaced = TimePlaced;
+        this.TimeModified = TimeModified;
+        this.NeedsReorder = NeedsReorder;
+        this.Container = Container;
+    }
+    
+    //@JsonManagedReference
+    public List<Container> getContainer() {
+        return Container;
+    }
+
+    public void setContainer(List<Container> Container) {
+        this.Container = Container;
+    }
+
+
 
     public String getItemID() {
         return ItemID;
@@ -92,6 +123,10 @@ public class Item {
     LocalDateTime TimeModified;
     Boolean NeedsReorder;
 
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "Item")
+    //@JsonManagedReference
+    List<Container> Container;
+    
     public Item() {}
       
      public Item(String ItemID, String Category, String Name, int Quantity, String OperatorName, LocalDateTime TimePlaced, LocalDateTime TimeModified, Boolean NeedsReorder) {

@@ -29,8 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Path("/item")
 public class ItemController {
     
-      @Autowired
-    private ItemRepository repo;
+    @Autowired
+    private ItemRepository itemRepo;
+    @Autowired
+    private ContainerRepository containerRepo;
     @Autowired
     private ObjectMapper objectMapper;
     
@@ -44,7 +46,7 @@ public class ItemController {
     @Produces(MediaType.APPLICATION_JSON)
     public Item getItem(@PathParam("id") String id) throws JsonProcessingException {
         
-        return repo.findById(id).orElse(null);
+        return itemRepo.findById(id).orElse(null);
 
     }
     
@@ -52,7 +54,9 @@ public class ItemController {
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public ArrayList<Item> getAllItem() throws JsonProcessingException {
-        return repo.findAll();
+          ArrayList<Item> findAllWithConatiner = itemRepo.findAll();
+          //String a = findAllWithConatiner.get(1).Container.getBox();
+        return findAllWithConatiner;
     }
     
     
@@ -61,8 +65,25 @@ public class ItemController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addItem(Item item,@Context UriInfo uriInfo)
     {
-        repo.save(new Item(item.getItemID(),item.getCategory(),item.getName(),item.getQuantity(),item.getOperatorName()
+        itemRepo.save(new Item(item.getItemID(),item.getCategory(),item.getName(),item.getQuantity(),item.getOperatorName()
                 ,item.getTimePlaced(),item.getTimeModified(),item.getNeedsReorder()));
+        
+        return Response.status(Response.Status.CREATED.getStatusCode()).header("Created", item.ItemID).build();
+    }
+    
+    @POST
+    @Path("/withcontainer")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addItemWithConainer(Item item, @Context UriInfo uriInfo)
+    {
+        itemRepo.save(new Item(item.getItemID(),item.getCategory(),item.getName(),item.getQuantity(),item.getOperatorName()
+        ,item.getTimePlaced(),item.getTimeModified(),item.getNeedsReorder()));
+        for(Container con : item.getContainer())
+        {
+            con.setItem(item);
+            containerRepo.save(con);
+        }
+
         
         return Response.status(Response.Status.CREATED.getStatusCode()).header("Created", item.ItemID).build();
     }
@@ -71,12 +92,12 @@ public class ItemController {
     @Path("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteItem(@PathParam("id") String id) throws JsonProcessingException {
-        Item item = repo.findById(id).orElse(null);
+        Item item = itemRepo.findById(id).orElse(null);
         if(item == null)
         {
             return Response.status(Response.Status.NO_CONTENT.getStatusCode()).build();
         }
-        repo.delete(item);
+        itemRepo.delete(item);
         return Response.status(Response.Status.OK.getStatusCode()).header("Deleted", item.ItemID).build();
     }
 }

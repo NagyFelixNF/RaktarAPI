@@ -7,6 +7,7 @@ package com.Raktar.Api;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -19,4 +20,9 @@ public interface ItemRepository extends CrudRepository<Item, String>{
     Optional<Item> findById(String id);
     @Override
     ArrayList<Item> findAll();
+    
+    @Query( value = "SELECT * FROM item \n" +
+                    "LEFT JOIN container ON item.itemid = container.itemid", 
+            nativeQuery = true)
+    public ArrayList<Item> findAllWithConatiner();
 }
