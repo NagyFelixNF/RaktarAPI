@@ -97,6 +97,12 @@ public class ItemController {
         {
             return Response.status(Response.Status.NO_CONTENT.getStatusCode()).build();
         }
+        ArrayList<Container> containers = containerRepo.findAllByItemID(item.ItemID);
+        for(Container con : item.getContainer())
+        {
+            con.setItem(null);
+            containerRepo.save(con);
+        }
         itemRepo.delete(item);
         return Response.status(Response.Status.OK.getStatusCode()).header("Deleted", item.ItemID).build();
     }
